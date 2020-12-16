@@ -1,0 +1,20 @@
+REACT BASICS
+
+In React;
+
+1. Components can import modules they need and must 
+export themselves at the bottom of ther files
+
+2. Component functions are named with PascalCase.
+
+3. You can read JSX variables by putting them between 
+curly braces, like {so}.
+
+4. Some JSX attributes are different than HTML attributes 
+so that they dont't conflict with JavaScript 
+reserved words. For example, class in HTML translates 
+to className in JSX. Note that multi-word attributes 
+are camel-cased.
+
+5. Props are written just like attributes inside 
+component calls and are passed into components.

@@ -1,0 +1,2345 @@
+
+Let's say that we’ve been tasked with creating a proof-of-concept in React
+ – an app that allows users to add, edit, and delete tasks 
+ they want to work on, and also mark tasks as 
+ complete without deleting them. 
+ This article will walk you through putting the 
+ basic App component structure and styling in place,
+  ready for individual component definition and 
+  interactivity, which we'll add later.
+
+ Our app's user stories
+In software development, a user story is an actionable goal from the perspective of the user. Defining user stories before we begin our work will help us focus our work. Our app should fulfill the following stories:
+-------------------
+As a user, I can
+
+read a list of tasks.
+add a task using the mouse or keyboard.
+mark any task as completed, using the mouse or keyboard.
+delete any task, using the mouse or keyboard.
+edit any task, using the mouse or keyboard.
+view a specific subset of tasks: All tasks, only the active task, or only the completed tasks.
+We'll tackle these stories one-by-one.
+-------------------------------------------
+First, consider the JSX we have, and how 
+it corresponds to our user stories:
+
+-> We have a <form> element, with an <input type='text> for
+writing out a new task, and a button to submit the form.
+-> We have an array of buttons that will be used
+to filter out tasks
+-> We have a heading that tells us how many tasks remain.
+-> We have our 3 tasks, arranged in an un-ordered list. Each 
+task is a list item, (<li>), and has buttons to 
+edit and delete it and a checkbox to check it off 
+as done.
+
+The form will allow us to make tasks.
+the buttons will let us filter them.
+the heading and list are our way to read them.
+
+Th UI for editing a task is conspicuously 
+absent for now. That's okay - we'll write 
+that later.
+-----------------------------------------------
+  Accessibility features
+
+  You may notice some unusual attributes here. For 
+  example:
+
+  <button type='button' className='btn toggle-btn' aria-pressed='true'>
+    <span className='visually-hidden'>Show </span>
+    <span>all</span>
+    <span className='visually-hidden'> tasks</span>
+  </button>
+
+  Here, aria-pressed tells assistive technology (like screen readers) 
+  that the button can be in one of two states: 
+  pressed or unpressed. Think of these as analogs
+  for on and off. Setting a value of true 
+  means that the button is pressed by default.
+
+  The class visually-hidden has no effect yet, because
+  we have not included any CSS. Once we have put our styles 
+  in place, though, any element  with this class will 
+  be hidden from sighted users and still available to 
+  screen reader users -- this is because these words 
+  are not needed by sigted users: they are there to 
+  provide more information about what the button does 
+  for screenreader users that do not have the 
+  extra visual context to help them.
+
+  Further down, you can find our <ul> elemnt:
+
+  <ul 
+    role='list'
+    className='todo-list stack-large stack-exception'
+    aria-labelledby='list-heading'
+  >
+
+  The role attribute helps assistive technology explain
+  what kind of element a tag represents. A <ul> is 
+  trated like a list by default, but the styles we´re
+  about to add will break that functionalyty. This 
+  role will restore the "list" meaning to the 
+  <ul> element. (I think is deprecated).
+
+  The aria-labelledby attribute tells assistive technologies 
+  that we're treating our list heading as the label 
+  that describes the purpose of the list beneath it. 
+  Making this association gives the list a more 
+  informative context, which could help screen reader 
+  users better understand the purpose of it. 
+
+  Finally, the labels and inputs in our list items 
+  have some attributes unique to JSX:
+
+  <input id="todo-0" type="checkbox" defaultChecked={true} />
+  <label className="todo-label" htmlFor="todo-0">
+    Eat
+  </label>
+
+  The defaultChecked attribute in the <input /> tag tells 
+  React to check this checkbox initially. If we were to 
+  use checked, as we would in regular HTML, React 
+  would log some warnings into our browser console 
+  relating to handling events on the checkbox, which 
+  we want to avoid. 
+
+  The htmlFor attribute corresponds to the for attribute 
+  used in HTML. We cannot use for as an attribute in 
+  JSX because for is a reserved word, so React 
+  uses htmlFor instead.
+
+  Notes: 
+  To use boolean values (true and false) in JSX 
+  attributes, you must enclose them ini curly braces. 
+  If you write defaultChecked="true", the value of 
+  defaultChecked will be "true" -- a string literal.
+  Remember -- this is actually JavaScript, not HTML!
+
+  The aria-pressed attribute use in our earlier 
+  code snippet has a value of "true" because 
+  aria-pressed is not a true boolean attribute 
+  in the way checked is.
+
+  ---------------------
+  Implementing our styles
+  CSS
+  -------------------------------
+  Componetizing our React app
+
+https://developer.mozilla.org/en-US/docs/Learn/Tools_and_testing/Client-side_JavaScript_frameworks/React_components
+
+
+  At this point, our app is a monolith. Before we can 
+  make it do things, we need to break it apart
+  into manageable, descriptive components. 
+  React doesn't have any hard rules for what is 
+  and isn't a component - that's up to you!
+
+  In this article we will show you a sensible way
+  to break our app up into components:
+
+  ------------
+  Defining our first component
+
+  Defining a component can seem tricky until you have some 
+  practice, but the gist is:
+
+  1. If it represents an obvious "chunk" of your app, 
+  it's probably a component.
+
+  2. If it gets reused often, it's probably a component.
+
+  That second bullet is especially valuable: making a component 
+  out of common UI elements allows you to change your code 
+  in one place and see those changes everywhere that component 
+  is used. You don't have to break everything out into 
+  components right away, either. Let's take the second 
+  bullet point as inspiration and make a component out of the 
+  most reused, most important piece of the UI:  
+  a todo list item.
+
+------
+  Make a <Todo />
+
+Before we can make a component, we should create a new file 
+for it. In fact, we should make a directory just form our 
+components. 
+
+Meke a components directory and then, within that, a file
+called Todo.js. Make sure you're in the root of your app.
+
+Our new Todo.js file is curently empty. 
+Write its first line
+
+import React from 'react';
+
+And add the following code, we define a function 
+and export it on the same line:
+
+export default function Todo() {
+  return (
+
+  );
+}
+
+Our component has to return something! 
+Go back to src/App.js, copy the first 
+<li> from inside the unordered list, and 
+past it into Todo.js so that it reads like 
+this:
+
+export default function Todo() {
+  return (
+          <li className="todo stack-small">
+            <div  className='c-cb'>
+              <input id='todo-0' type="checkbox" defaultChecked={true} />
+              <label className='todo-label' htmlFor="todo-0">
+                Eat
+              </label>
+            </div>
+            <div className="btn-group">
+              <button type="button" className='btn'>
+                Edit <span className="visually-hidden">Eat</span>
+              </button>
+              <button type="button" className='btn btn__danger'>
+                Delete <span className="visually-hidden">Eat</span>
+              </button>
+            </div>
+          </li>
+  );
+}
+
+Note: Components must always return something. If at 
+any point in the future you try to render a component 
+that does not return anything, React will display an 
+error in your browser.
+
+Our Todo component is complete, at least for now;
+now we can use it. In App.js, add the following 
+line near the top of the file to import Todo:
+
+import Todo from "./components/Todo";
+
+With this component imported, you can replace all 
+of the <li> elements in App.js with <Todo />
+component calls. Your <ul> should read like this:
+
+<ul 
+  className="todo-list stack-large stack-exception"
+  aria-labelledby="list-heading"
+>
+  <Todo />
+  <Todo />
+  <Todo />
+</ul>
+
+When you look back at your browser, you'll 
+notice something unfortunate: your list now 
+repeats the first task three times!
+
+Next we'll look at how we can make different
+component calls render unique content.
+
+------------
+
+Make a unique <Todo />
+
+Components are powerful because they let us 
+re-use pieces of our UI, and refer to one 
+place for the source of that UI. 
+The problem is, we don't tipically want to reuse 
+all of each component; we want to reuse most 
+parts, and change small pieces. This is where 
+props come in.
+
+What's in a name ?
+
+In order to track the names of tasks we want 
+to complete, we should ensure that each 
+<Todo /> component renders a unique name.
+
+In App.js, gives each <Todo /> a name prop. 
+Let's use the names of our tasks that we had 
+before: 
+
+<Todo name="Eat" />
+<Todo name="Sleep" />
+<Todo name="Repeat" />
+
+When your browser refreshes, you will see ...
+the exact same thing as before. We gave our 
+<Todo /> some props, but we aren't using them 
+yet. Let's go back to Todo.js and remedy that.
+
+First modify your Todo() function definition so 
+that it takes props as a parameter. You can 
+console.log() your props as we did before, 
+if you'd like to check that they are being 
+received by the component correctly.
+
+Once you're confident that your component is 
+getting its props, you can replace every 
+occurrence of Eat with your name prop. 
+Remember: when you're in the middle of a 
+JSX expression, you use curly braces to inject
+the value of a variable.
+
+Putting all that together, your Todo() 
+function should read like this:
+
+export default function Todo(props) {
+  return (
+          <li className="todo stack-small">
+            <div  className='c-cb'>
+              <input id='todo-0' type="checkbox" defaultChecked={true} />
+              <label className='todo-label' htmlFor="todo-0">
+                {props.name}
+              </label>
+            </div>
+            <div className="btn-group">
+              <button type="button" className='btn'>
+                Edit <span className="visually-hidden"> {props.name} </span>
+              </button>
+              <button type="button" className='btn btn__danger'>
+                Delete <span className="visually-hidden"> {props.name} </span>
+              </button>
+            </div>
+          </li>    
+  );
+}
+
+Now your browser should show three unique tasks.
+Another problem remains though: they're all 
+still checked by default.
+
+---
+
+Is it completed ?
+
+In our original static list, only Eat was 
+checked. Once again, we want to reuse most 
+of the UI that make up a <Todo /> component, 
+but change one thing. That's a good job for 
+another prop! Give each <Todo /> call in 
+App.js a new prop of completed. The first 
+(Eat) should have a value of true; the rest 
+should be false:
+
+<Todo name="Eat" completed={true} />
+<Todo name="Sleep" completed={false} />
+<Todo name="Repeat" completed={false} />
+
+As before, we must go back to Todo.js to actually 
+use these props. Change the 
+defaultChecked attribute on the <input /> 
+so that its value is equal to the completed prop.
+Once you're done, the Todo component's 
+<input /> element will read like this:
+
+<input id="todo-0" type="checkbox" defaultChecked={props.completed} />
+
+And your browser should update to show 
+only Eat being checked:
+
+If you change each <Todo /> component's 
+completed prop, your browser will check or 
+uncheck the equivalent rendered checkboxes
+accordingly.
+-----
+Gimme some id, please
+
+Right now. our <Todo /> component gives every
+task an id attribute of todo-0. This is bad 
+HTML because id atttributes must be unique 
+(they are used as unique identifiers for 
+document fragments, by CSS, JavaScript, etc).
+This means we should give our component an 
+id prop that takes a unique value for each Todo.
+
+To follow the same pattern we had initially, 
+let's give each instance of the <Todo /> 
+component an ID in the format of todo-i, 
+where i gets larger by one every time:
+
+<Todo name="Eat" completed={true} id="todo-0" />
+<Todo name="Sleep" completed={true} id="todo-1" />
+<Todo name="Repeat" completed={true} id="todo-2" />
+
+Now go back to Todo.js and make use of the 
+id prop. It needs to replace the value of 
+attribute of the <input /> element, as well 
+as the value of its label's htmlFor attribute:
+
+<div className="c-cb">
+  <input id={props.id} type="checkbox" defaultChecked={props.completed} />
+  <label className="todo-label" htmlFor={props.id}>
+    {props.name}
+  </label>
+</div>
+
+----
+So far, so good? Ja
+
+We're making good use of React so far, but we 
+could do better! Our code is repetitive. The 
+three lines that render our <Todo /> component 
+are almost identical, with only one difference:
+the value of each prop.
+
+We can clean up our code with one of JavaScript's 
+core abilities: iteration. To use iteration, 
+we should first re-think our tasks.
+
+----------------
+
+Tasks as data 
+
+Each of our tasks currently contains three 
+pieces of information: its name, wheter it 
+has been checked, and its unique ID. This 
+data translates nicely to an object. Since 
+we have more than one task, an array 
+of objects would work well in representing
+this data.
+
+In src/index.js, make a new const beneath the 
+final import, but above ReacDOM.render():
+
+const DATA = [
+  { id: "todo-0", name: "Eat", completed: true },
+  { id: "todo-1", name: "Sleep", completed: false },
+  { id: "todo-2", name: "Repeat", completed: false }
+];
+
+Next, we'll pass DATA to <App /> as a prop, 
+called tasks. The final line of src/index.js 
+should read like this:
+
+ReactDOM.render(<App tasks={DATA} />, document.getElementById("root"));
+
+This array is now available to the App component 
+as props.tasks. You can console.log() it 
+to check, if you'd like.
+
+https://developer.mozilla.org/en-US/docs/Learn/Tools_and_testing/Client-side_JavaScript_frameworks/React_components
+
+Note: ALL_CAPS constants names have no special
+meaning in JavaScript; they're a convention 
+that tells other developers "this data will
+never change after being defined here"
+
+--------------
+
+Rendering with iteration
+
+To render our array of objects, we have to 
+turn each one into a <Todo /> component. 
+JavaScript gives us an array method for 
+transforming data into something else:
+Array.prototype.map().
+
+Above the return statement of App(), make a 
+new const called taskList and use map() to 
+transform it. Let's start by turning our 
+tasks array into something simple : 
+the name of each task:
+
+const taskList = props.tasks.map(task => task.name);
+
+Let's try replacing all the children of the
+<ul> with taskList:
+
+<ul
+  className="todo-list stack-large stack-exception"
+  aria-labelledby="list-heading"
+>
+  {taskList}
+</ul>
+
+This gets us some of the way towards showing all 
+the components again, but we've got more work 
+to do: the browser currently renders each task's 
+name as unstructured text. We're missing our 
+HTML structure -- the <li> and its checkboxes 
+and buttons!
+
+To fix this, we need to return a <Todo /> 
+component from our map() function -- remember 
+that JSX allows us to mix up JavaScript and 
+markup structures! Let's try the following 
+instead of what we have already:
+
+const taskList = props.tasks.map(task => <Todo />);
+
+Look again at your app; now our tasks look more like 
+they used to, but they're missing the names of the 
+tasks themselves. Remember that each task we map over 
+has the id, name, and checked properties we want to pass
+into our <Todo /> component. If we put that knowledge 
+together, we get code like this:
+
+const taskList = props.tasks.map(task => (
+  <Todo id={task.id} name={task.name} completed={task.completed} />
+));
+
+Now the app looks like it did before, and our code is less
+repetitive.
+--------------
+
+Unique keys
+
+Now that React is rendering our tasks out of an array,
+it has to keep track of which one is which in order 
+to render them properly. React tries to do its own 
+guesswork to keep track of things, but we can help it 
+out by passing a key prop to our <Todo /> components.
+key is a speciap prop that's managed by React - you 
+cannot use the word key for any other purpose.
+
+Because keys should be unique, we're going to re-use 
+the id of each task object as its key. Update your 
+taskList constant like so:
+
+const taskList = props.tasks.map(task => (
+  <Todo
+    id={task.id}
+    name={task.name}
+    completed={task.completed}
+    key={task.id}
+));
+
+You should always pass a unique key to anything you render
+with iteration.
+Nothing obvious will change in your browser but if you 
+do not use keys, React will log warnings to your console
+and your app may behave strangely!
+-----------
+
+Componentizing the rest of the app
+
+Now that we've got our most important component sorted 
+out, we can turn the rest of our app into components.
+Remembering that components are either   obvious 
+pieces of UI, or reused pieces of UI, or both, we can 
+make two more components:
+
+-> <Form />
+-> <FilterButton />
+
+Since we know we need both, we can batch some of the
+file creation work together with a terminal command.
+Run this command in your terminal, taking care that 
+you're in the root directory of your app:
+
+touch src/components/Form.js src/components/FilterButton.js
+
+-------------
+
+The <Form />
+
+Open components/Form.js and do the following;
+
+-> Import React at the top of the file, like we did 
+in Todo.js.
+-> Make yourself a new Form() component with the same 
+basic structure as Todo(), and export that component .
+-> Copy the <form> tags and everything between them 
+from inside App.js, and paste them inside Form()'s 
+return statement.
+-> Export Form at the end of the file
+
+Your Form.js file should read like this:
+
+import React from 'react';
+
+function Form(props) {
+  return (
+      <form>
+        <h2 className="label-wrapper">
+          <label htmlFor="new-todo-input" className="label__lg">
+            What needs to be done?
+          </label>
+        </h2>
+        <input
+          type="text"
+          id="new-todo-input"
+          className="input input__lg"
+          name="text"
+          autoComplete="off"
+        ></input>
+        <button type='submit' className="btn btn__primary btn__lg">
+          Add
+        </button>
+      </form>    
+  );
+}
+
+export default Form
+
+----------
+
+The <FilterButton />
+
+Do the same things you did to create Form.js inside 
+FilterButton.js, but call the component FilterButton() 
+and copy the HTML for the first button inside the 
+<div> element with the class of filters from App.js 
+into the return statement.
+
+The file should read like this:
+
+import React from 'react';
+
+function FilterButton(props) {
+  return (
+    <button type='button' className='btn toggle-btn' aria-pressed="true" >
+      <span className="visually-hidden">Show </span>
+      <span>all</span>
+      <span className="visually-hidden"> tasks</span>
+    </button>
+  );
+}
+
+export default FilterButton
+
+Note: You might notice that we are making the same 
+mistake here as we first made for the <Todo /> 
+component, in that each button will be the same. 
+That's fine! We're going to fix up this component 
+later on, in Back to the filter buttons.
+
+--------------------
+
+Importing all our components
+
+Let's make use of our new components.
+
+Add some more import statements to the top of 
+App.js, to import them.
+
+Then, update the return statement of App() so that 
+it renders our components. When you're done, 
+App.js will read like this:
+
+import React from 'react';
+import Form from './components/Form';
+import FilterButton from './components/FilterButton';
+import Todo from "./components/Todo";
+
+function App(props) {
+  const taskList = props.tasks.map(task => (
+    <Todo 
+      id={task.id} 
+      name={task.name} 
+      completed={task.completed}
+      key={task.id}  
+    />
+  ));
+  return (
+    <div className="todoapp stack-large">
+      <Form />
+      <div className="filters btn-group stack-exception">
+        <FilterButton />
+        <FilterButton />
+        <FilterButton />
+      </div>  
+        <h2 id="list-heading">3 tasks remaining</h2>
+        <ul
+          className='todo-list stack-large stack-exception'
+          aria-labelledby="list-heading"
+        >
+          {taskList}
+        </ul>
+    </div>
+  );
+}
+
+export default App;
+
+With this in place, we're almost ready to tackle some
+interactivity in our React app!
+--------------------
+
+Summary
+
+We've gone into some depth on how to break up your 
+app nicely into components, end render them efficiently.
+Now we'll go on to look at how we handle events in
+React, and start adding some interactivity.
+---------------------------------------------
+-----------------------------------------
+
+REACT INTERACTIVITY: EVENTS AND statement 
+
+With our component plan worked out, it's now
+time to start updating our app from a 
+completely static UI to one that actually 
+allows us to interact and change thing. In 
+this article we'll do this, digging into 
+events and state along the way, and ending up 
+with an app in which we can successfully 
+add and delete tasks, and toggle tasks as 
+completed.
+
+Handling events 
+
+If you've only written vanilla JavaScript before now, 
+you might be used to having a separate JavaScript file, 
+where you query for some DOM nodes and attach listeners 
+to them. For example:
+
+const btn = document.querySelector('button');
+
+btn.addEventListener('click', () => {
+  alert('hi')
+});
+
+In React, we write event handlers directly on the 
+elements in our JSX, like this:
+
+<button
+  type="button"
+  onClick={() => alert('hi')}
+>
+  Say hi!
+</button>
+
+Note: This may seem counter-intuitive regarding 
+best-practice advice that tends to advise against 
+use of inline event handlers on HTML, but remember 
+that JSX is actually part of your JavaScript.
+
+In the above example, we're adding an onClick attribute 
+to the <button> element. The value of that attribute 
+is a function that triggers a simple alert.
+
+The onClick attribute has special meaning here: it 
+tell React to run a given function when the user 
+clicks on the button. There are a couple of other 
+things to note:
+
+-> The camel-cased nature of onClick is important - JSX 
+will not recognize onclick (again, it is already 
+used in JavaScript for a specific purpose, which is 
+related but different - standard onclick handler properties).
+-> All browser events follow this format in JSX - on , 
+followed by the name of the event.
+
+Let's apply this to our app, starting in the Form.js component
+-----------
+Handling form submission
+
+At the top of the Form() component function, create a 
+function named handleSubmit(). This function should 
+prevent the default behavior of the submit event. 
+After that, it should trigger an alert(), which can 
+say whatever you'd like. It should end up lookin 
+something like this:
+
+function handleSubmit(e) {
+  e.preventDefault();
+  alert('Hello world');
+}
+
+
+To use this function, add an onSubmit attribute to 
+the <form> element, and set its value to the 
+handleSubmit fuction:
+
+<form onSubmit={handleSubmit}>
+
+Now if you head back to your browser and click on the
+"Add" button, your browser will show you an alert 
+dialog with the words "Hello world" - or whatever 
+you chose to write ther.
+
+------------------
+
+Callback props
+
+In React applications, interactivity is rarely 
+confined to just one component: events that happen
+in one component will affect other parts of the app.
+When we start giving ourselves the power to make 
+new tasks, things that happen in the <Form /> component
+will affect the list rendered in <App />.
+
+We want our handleSubmit() function to ultimately help 
+up create a new task, so we need a way to pass 
+information from <Form /> to <App />. We can't pass 
+data from child to parent in the same way as we pass 
+data from parent to child using standard props. 
+Instead, we can write a function in <App /> that will 
+expect some data from our form as an input, then pass 
+that function fo <Form /> as a prop. This 
+function-as-a-prop is called a callback prop. Once we 
+have our callback prop, we can call it inside <Form />
+to send the right data to <App />.
+
+------
+
+Handling form submission via callbacks
+
+Inside the top of our App() component function, 
+create a function named addTask() which has a single 
+parameter of name:
+
+function addTask(name) {
+  alert(name);
+}
+
+Next, we'll pass addTask() into <Form /> as a prop. The 
+prop can have whatever name you want, but pick a name 
+you'll understand later. Something like addTask works, 
+because it matches the name of the function as well 
+as what the function will do. Your <Form /> component 
+call should be updated as follows:
+
+<Form addTask={addTask} />
+
+Finally, you can use this prop inside the handleSubmit()
+function in your <Form /> component! Update it as 
+follows:
+
+function handleSubmit(e) {
+  e.preventDefault();
+  props.addTask("Say hello");
+}
+
+Clicking on the "Add" button in your browser will prove the 
+addTask() callback function works, but it'd be nice 
+if we could get the alert to show us what we're typing
+in our input field!
+This is what we'll do next.
+
+Note: We decided to name our callback prop addTask to 
+make it easy to understand what the prop wil do. Another 
+common convention you may well come across in React code 
+is to prefix callback prop names with the word on, followed 
+by the name of the event that will cause them to be run.
+For instance, we could have given our form a prop of 
+onSubmit with the value of addTask.
+
+------------------
+
+State and the useState hook
+
+So far, we've used props to pass data through our 
+components and this has served us just fine. Now 
+that we're dealing with user input and data updates, 
+however, we need something more.
+
+For one thing, props come from the parent of a component.
+Our <Form /> will not be inheriting a new name for our 
+task; our <input /> element lives directly inside of 
+<Form />, so <Form /> will be directly responsible for 
+creating that new name. We can't ask <Form /> to 
+spontaneously create its own props, but we can ask it 
+to track some of its own data for us. Data such as this, 
+which a component itself owns, is called state. 
+State is another powerful tool for React because components 
+not only own state, but can update it later. It's not 
+possible to update the props a component receives, only
+to read them.
+
+React provides a variety of special functions that allow 
+us to provide new capabilities to components, like state.
+These functions are called hooks, and the useState 
+
+To use a React hook, we need to import it from 
+the react module. In Form.js, change your very 
+first line so that it reads like this:
+
+import React, { useState } from 'react';
+
+This allows us to import the useState() function by 
+itself, and utilize it anywhere in this file.
+
+useState() creates a piece of state for a component, 
+and its only parameter determines the initial value 
+of that state. It returns two things: the state, and 
+a function that can be used to update the state later.
+
+This is a lot to take in at once, so let's try it out. 
+We're going to make ourselves a name state, and 
+a function for updating the name state.
+
+Write the following above your handleSubmit() function,
+inside Form():
+
+const [name, setName] = useState('Use hooks');
+
+What's going on in this line of code?
+-> We are setting the initial name value as "Use hooks"
+-> We are defining a function whose job is to modify name, called setName().
+-> useState() returns these two things, so we are using array destructuring to capture 
+   them both in separate variables.
+
+-----------
+
+Reading state
+
+You can see the name state in action right away. 
+Add a value attribute to the form's input, and 
+set its value to name. 
+
+Your browser will render "Use hooks" inside 
+the input.
+
+        <input
+          type="text"
+          id="new-todo-input"
+          className="input input__lg"
+          name="text"
+          autoComplete="off"
+          value={name}
+        ></input>
+
+Change "Use hooks!" to an empty string once
+you're done; this is waht we want for our initial 
+state.
+
+const [name, setName] = useState('');
+
+----------------------
+
+Reading user input 
+
+Before we can change the value of name, we 
+need to capture a user's input as they type. 
+For this, we can listen to the onChange event. 
+Let's write a handleChange() function, and listen 
+for it on the <input /> tag.
+
+// near the top of the Form component
+function handleChange(e) {
+  console.log("Typing!");
+}
+
+// Down in the return statement
+<input
+  type="text"
+  id="new-todo-input"
+  className="input input__lg"
+  name="text"
+  autoComplete="off"
+  value={name}
+  onChange={handleChange}
+/>
+
+Currently, your input's value will not change 
+as you type, but your browser will log the 
+word "Typing!" to the JavaScript console, so 
+we know our event listener is attached to the 
+input. In order to change the input's value, we 
+have to use our handleChange() function to 
+update our name state.
+
+To read the contents of the input field as 
+they change, you can access the input's value 
+property. We can do this inside handleChange() 
+by reading e.target.value. 
+e.target represents the element that fired the 
+change event - that's our input. So, value is 
+the text inside it. 
+
+You can console.log() this value to see it 
+in your browser's console.
+
+function handleChange(e) {
+  console.log(e.target.vale);
+}
+
+--------------------------------
+
+Updating state
+
+Logging isn't enough - we want to actually store the 
+updated state of the name as the input value changes!
+Change the console.log() to setName(), as shown below:
+
+function handleChange(e) {
+  setName(e.target.value);
+}
+
+Now we need to change our handleSubmit() function so 
+that it calls props.addTask with name as an argument - 
+remember our callback prop? This will serve to send 
+the task back to the App component, so we can add it 
+to our list of tasks at some later date. As a matter of 
+good practice, you should clear the input after your form 
+submits, so we'll call setName() again with an empty 
+string to do so:
+
+function handleSubmit(e) {
+  e.preventDefault();
+  props.addTask(name);
+  setName('');
+}  
+
+At last you can type something into the input field 
+in your browser and click Add - whatever you typed 
+will appear in an alert dialog.
+
+Your Form.js file should now read like this:
+
+import React, { useState } from 'react';
+
+function Form(props) {
+const [name, setName] = useState('');
+
+function handleChange(e) {
+  setName(e.target.value);
+}
+
+function handleSubmit(e) {
+  e.preventDefault();
+  props.addTask(name);
+  setName('');
+}  
+  return (
+      <form onSubmit={handleSubmit}>
+        <h2 className="label-wrapper">
+          <label htmlFor="new-todo-input" className="label__lg">
+            What needs to be done?
+          </label>
+        </h2>
+        <input
+          type="text"
+          id="new-todo-input"
+          className="input input__lg"
+          name="text"
+          autoComplete="off"
+          value={name}
+          onChange={handleChange}
+        ></input>
+        <button type='submit' className="btn btn__primary btn__lg">
+          Add
+        </button>
+      </form>    
+  );
+}
+
+export default Form
+
+Note: One thing you'll notice is that you are able 
+to submit empty tasks by just pressing the Add 
+button without entering a task name. Can you think
+of a way to disallow empty tasks from being added?
+As a hint, you probably need to add some kind of 
+check into the handleSubmit() function.
+-------
+
+Putting it all together: Adding a task
+
+Now that we've practiced with events, callback props, 
+and hooks we're ready to write functionalyty that 
+will allow a user to add a new task from their 
+browser.
+
+Tasks as state
+
+Import useState into App.js, so that we can store 
+our tasks in state -- update your React import 
+line to the following:
+
+import React, { useState } from 'react';
+
+We wanto to pass props.tasks into the useState() 
+hook - this will preserve its initial state.
+Add the following right at the top of your App() 
+function definition:
+
+const [tasks, setTasks] = useState(props.tasks);
+
+Now, we can change our taskList mapping so that it 
+is the result of mapping tasks, instead of props.tasks.
+Your taskList constant declaration should now 
+look like so:
+
+const taskList = tasks.map(task => (
+  <Todo 
+    id={task.id}
+    name={task.name}
+    completed={task.completed}
+    key={task.id}
+  />
+)
+);
+
+----------------------------
+
+Adding a task
+
+We've now got a setTasks hook that we can use in 
+our addTask() function to update our list of tasks.
+There's one problem however: we can't just pass the 
+name argument of addTask() into setTasks, because 
+tasks is an array of objects and name is a string.
+If we tried to do this, the array would be replaced
+with the string.
+
+First of all, we need to put name into an object that 
+has the same structure as our existing tasks. Inside 
+of the addTask() function, we will make a newTask object
+to add to the array.
+
+We then need to make a new array with this new task 
+added to it and then update the state of the tasks 
+data to this new state. To do this, we can use 
+spread syntax to copy the existing array, and add 
+our object at the end. We then pass this array into 
+setTasks() to update the state. 
+
+Putting that all together, your addTask() function 
+should read like so:
+
+function addTask(name) {
+  const newTask = { id: "id", name: name, completed: false};
+  setTasks([...tasks, newTask]);
+}
+
+Now you can use the browser to add a task to our data! 
+Type anything into the form and click "Add" 
+(or press the Enter key) and you'll see your new 
+todo item appear in the UI!
+
+However, we have another problem: our addTask() 
+function is giving each task the same id. This 
+is bad for accessibility, and makes it impossible 
+for React to tell future tasks apart with the 
+key prop. In fact, React will give you a warning 
+in your DevTools console - "Warning: Encountered 
+two children with the same key..."
+
+We need to fix this. Making unique identifiers is 
+a hard problem - one for which the JavaScript 
+community has written some helpful libraries. 
+We'll use nanoid because it's tiny, and it works.
+
+Make sure you're in the root directory of your 
+application and run the following terminal command:
+
+npm install nanoid
+
+Note: If you're using yarnm you'll need the 
+following instead: yarn add nanoid 
+
+Now we can import nanoid into the App.js so we 
+can use it to create unique IDs for our new tasks. 
+First of all include the following import line at the 
+top of App.js:
+
+import { nanoid } from 'nanoid';
+
+Now let's update addTask() so that each task ID 
+becomes a prefix todo- plus a unique string 
+generated by nanoid. Update your newTask constant 
+declaration to this:
+
+const newTask = { id: "todo-" + nanoid(), name: name, completed: false };
+
+Save everything, and try your app again - now you can 
+add tasks without getting that warning about duplicate IDs.
+
+---------------------
+
+Detour: counting tasks 
+
+Now that we can add new tasks, you may notice a 
+problem: our heading reads 3 tasks remaining, no 
+matter how many tasks we have! We can fix this by
+counting the length of taskList and changing the 
+text of our heading accordingly.
+
+Add this inside your App() definition, before the 
+return statement:
+
+const headingText = `${taskList.length}` tasks remaining;
+
+Hrm. This is almost right, except that if our list 
+ever contains a single task, the heading will still 
+use the word "tasks". We can make this a variable, too. 
+Update the code you just added ad follows:
+
+const tasksNoun = taskList.length !== 1 ? 'tasks' : 'task';
+const headingText = `${taskList.length} ${tasksNoun} remaining`;
+
+Now you can replace the list heading's text content 
+with the headingText variable. Update your <h2> like 
+so:
+
+<h2 id="list-heading">{headingText}</h2>
+
+------------------------------
+
+Completing a task
+
+You might notice that, when you click on a checkbox, 
+it checks and unchecks appropriately. As 
+a feature of HTML, the browser knows how to remember 
+which checkbox inputs are checked or unchecked without 
+our help. This feature hides a problem, however: 
+toggling a checkbox doesn't change the state in 
+our React application. This means that the browser 
+and our app are now out-of-sync. We have to write 
+our own code to put the browser back in sync with 
+oru app. 
+
+------------
+
+Proving the bug
+
+Before we fix the problem, let's observe it happening.
+
+We'll start by writing a toggleTaskCompleted() function 
+in our App() component. This function will have 
+an id parameter, but we're not going to use it yet. 
+For now we'll log the first task in the array to the 
+console - we're going to inspect what happens when 
+we check of uncheck it in our browser:
+
+Add this just above your taskList constant declaration:
+
+  function toggleTaskCompleted(id) {
+    console.log(tasks[0])
+  }
+
+Next, we'll add toggleTaskCompleted to the props 
+of each <Todo /> component rendered inside our 
+taskList; update it like so:
+
+  const taskList = tasks.map(task => (
+    <Todo 
+      id={task.id} 
+      name={task.name} 
+      completed={task.completed}
+      key={task.id}  
+      toggleTaskCompleted={toggleTaskCompleted}
+    />
+  ));
+
+  Next, go over to your Todo.js component and add 
+  an onChange handler to your <input /> element, 
+  which should use an anonymous function to call 
+  props.toggleTaskCompleted() with a parameter of 
+  props.id. The <input /> should now look like this:
+
+        <input
+          id={props.id}
+          type="checkbox"
+          defaultChecked={props.completed}
+          onChange={() => props.toggleTaskCompleted(props.id)}  
+        />
+
+Save everything and return to your browser and 
+notice that our first task, Eat, is checked. 
+Open your JavaScript console, then click on the 
+checkbox next to Eat. It unchecks, as we expect. 
+Your JavaScript console, however, will log something
+like this:
+
+Object { id: "task-0", name: "Eat", completed: true }
+
+The checkbox unchecks in the browser, but our console 
+tells us that Eat is still completed. we will fix that
+next!
+
+-------------------------------
+
+Synchronizing the browser with our data
+
+Let's revisit our toggleTaskCompleted() function 
+in App.js. We want it to change the completed 
+property of only the task that was toggled, and 
+leave all the others alone. To do this, 
+we'll map() over the task list and just change the 
+one we completed.
+
+
+Update your toggleTaskCompleted() function to the 
+following:
+
+function toggleTaskCompleted(id) {
+  const updatedTasks = tasks.map(task => {
+    // if this task has the same ID as the edited task
+    if (id === task.id) {
+      // use object spread to make a new object
+      // whose completed prop has been inverted
+      return {...task, completed: !task.completed}
+    }
+    return task;
+  });
+  setTasks(updatedTasks);
+}
+
+Here, we define an updatedTasks constant that 
+maps over the original tasks array. If the 
+task's id property matches the id provided to 
+the function, we use object spread syntax to 
+create a new object, and toggle the checked property 
+of that object before returning it. If if 
+doesn't match, we return the original object.
+
+Then we call setTasks() with this new array in 
+order to update our state.
+
+---------------------------------
+
+Deleting a task
+
+Deleting a task will follow a similar pattern to 
+toggling its completed state: We need to define 
+a function for updating our state, then pass that 
+function into <Todo /> as a prop and call it 
+when the right event happens.
+
+The deleteTask callback prop 
+
+Here we'll start by writing a deleteTask() function 
+in your App component. Like toggleTaskCompleted(), 
+this function will take an id parameter, and we 
+will log that id to the console to start with. 
+Add the following below toggleTaskCompleted():
+
+function deleteTask(id) {
+  console.log(id)
+}
+
+Next, add another callback prop to our array 
+of <Todo /> components:
+
+  const taskList = tasks.map(task => (
+    <Todo 
+      id={task.id} 
+      name={task.name} 
+      completed={task.completed}
+      key={task.id}  
+      toggleTaskCompleted={toggleTaskCompleted}
+      deleteTask={deleteTask}
+    />
+  ));
+
+  In Todo.js, we want to call props.deleteTask()
+  when the "Delete" button is pressed.
+  deleteTask() needs to know the ID of the task 
+  that called it, so it can delete the correct 
+  task from the state
+  
+  Update the "Delete" button inside Todo.js, like 
+  so:
+
+  <button 
+    type="button"
+    className="btn btn__danger"
+    onClick={() => props.deleteTask(props.id)}
+  >
+    Delete <span className="visually-hidden">{props.name}</span>
+  </button>
+
+  Now when you click on any of the "Delete" 
+  buttons in the app, your browser console 
+  should log the ID of the related task.
+--------
+Deleting tasks from state and UI
+
+Now that we know deleteTask() is invoked correctly, we 
+can call our setTasks() hook in deleteTask() to 
+actually delete that task from the app's state as 
+well as visually in the app UI. Since setTasks() 
+expects an array as an argument, we should provide 
+it with a new array that copies the existing tasks, 
+excluding the task whose ID matches the one 
+passed into deleteTask().
+
+This is a perfect opportunity to use 
+Array.prototype.filter(). We can test each task, 
+and exclude a task from the new array if its id 
+prop matches the id parameter passed into deleteTask().
+
+Update the deleteTask() function inside your App.js file 
+as follows:
+
+  function deleteTask(id) {
+    const remainingTasks = tasks.filter(task => id !== task.id);
+    setTasks(remainingTasks);
+  }
+
+  Try your app out again. Now your should be 
+  able to delete a task from your app!
+
+
+  Summary
+
+  Here we've given you the lowdown on how React 
+  deals with events and handles state, and implemented 
+  functionalyty to add tasks, delete tasks, and 
+  toggle tasks as completed. We are nearly there. 
+  In the next article we'll implement functionality 
+  to edit existing tasks and filter the list of tasks 
+  between all, completed, and incomplete tasks. 
+  We'll look at conditional UI rendering along 
+  the way.
+------------------------------------------------
+----------------------------------------------
+------------------------------------------------
+
+REACT INTERACTIVITY: EDITING, FILTERING,
+CONDITIONAL RENDERING
+
+As we near the end of our React journey (for now at least),
+we'll add the finishing touches to the main areas 
+of functionality in our Todo list app. This 
+includes allowing you to edit existing, tasks, and 
+filtering the list of tasks between all, completed, 
+and incomplete tasks. We'll look at conditional
+UI rendering alogn the way.
+
+EDITING the name of a task 
+
+We don't have a user interface for editing the name 
+of a task yet. We'll get to that in a moment.
+To start with, we can at least implement an 
+editTask() function in App.js. It'll be similar to 
+deleteTask() because it'll take an id to find its 
+target object, but it'll also take a newName property 
+containing the name to update the task to 
+We'll use Array.prototype.map() instead of 
+Array.prototype.filter() because we wanto to return 
+a new array with some changes, instead of deleting 
+something from the array.
+
+Add the editTask() function inside your App component, 
+in the same place as the other functions:
+
+function editTask(id, newName) {
+  const editedTaskList = tasks.map(task => {
+    // if this task has the same ID as the edited task
+    if (id === task.id) {
+      return {...task, name: newName}
+    }
+    return task;
+  });
+  setTasks(editedTaskList);
+}
+
+Pass editTask into our <Todo /> components as 
+a prop in the same way we did with deleteTask:
+
+  const taskList = tasks.map(task => (
+    <Todo 
+      id={task.id} 
+      name={task.name} 
+      completed={task.completed}
+      key={task.id}  
+      toggleTaskCompleted={toggleTaskCompleted}
+      deleteTask={deleteTask}
+      editTask={editTask}
+    />
+  ));
+
+Now open Todo.js. We're going to do some refactoring.
+
+-----------
+
+A UI for editing 
+
+In order to allow users to edit a task, we have 
+to provide a user interface for them to do so.
+First, import useState into the Todo component 
+like we did before with the App component, by 
+updating the first import statement to this:
+
+import React, { useState } from 'react';
+
+We'll now use this to set an isEditing state, the 
+default state of which should be false. 
+Add the following line just inside the top of 
+your Todo(props) { ... } component definition:
+
+const [isEditing, setEditing] = useState(false);
+
+Next, we're going to rethink the <Todo /> component - 
+from now on, we want it to display one of two 
+possible "templates", rather than the single
+template it's used so far:
+
+-> The "view" template, when we are just viewing a 
+todo; this is what we've used in rest of the 
+tutorial so far.
+-> The "editing" template, when we are editing a 
+todo. We're about to create this. 
+
+Copy this block of code into the Todo() function, 
+beneath your useState() hook but above the 
+return statement:
+
+  const editingTemplate = (
+    <form className="stack-small">
+      <div className="form-group">
+        <label htmlFor={props.id} className="todo-label">
+          New name for {props.name}
+        </label>
+        <input id={props.id} className="todo-text" type="text"/>
+      </div>
+      <div className="btn-group">
+        <button  typ='button' className="btn todo-cancel">
+          Cancel
+          <span className="visually-hidden">renaming  {props.name} </span>
+        </button>
+        <button type='submit' className="btn btn__primary todo-edit">
+          Save
+          <span className="visually-hidden">new name for {props.name} </span>
+        </button>
+      </div>
+    </form>
+  );
+  const viewTemplate = (
+    <div className="stack-small">
+      <div className="c-cb">
+        <input 
+          id={props.id}
+          type="checkbox"
+          defaultChecked={props.completed}
+          onChange={() => props.toggleTaskCompleted(props.id)}
+        />
+        <label htmlFor={props.id} className="todo-label">
+          {props.name}
+        </label>
+      </div>
+      <div className="btn-group">
+        <button type='button' className="btn">
+          Edit <span className='visually-hidden'> {props.name} </span>
+        </button>
+        <button
+          type='button'
+          className='btn btn__danger'
+          onClick={() => props.deleteTask(props.id)}
+        >
+          Delete <span className='visually-hidden'> {props.name} </span>
+        </button>
+      </div>
+    </div>
+  );
+
+
+  We've now got the two different template structures 
+  - "edit" and "view" - defined inside two separate 
+  constants. This means that the return statement of 
+  <Todo /> is now repetitious - it also contains 
+  a definition of the "view" template. We can 
+  clean this up by using conditional rendering to 
+  determine which template the component returns, 
+  and is therefore rendered in the UI.
+
+  Conditional rendering
+
+  In JSX, we can use a condition to change what is 
+  rendered by the browser. To write a condition in 
+  JSX, we can use a ternary operator.
+
+  In the case of our <Todo /> component, our condition 
+  is "Is this task being edited?" Change the 
+  return statement inside Todo() so that it reads like 
+  so:
+
+  return <li className="todo">{isEditing ? editingTemplate : viewTemplate}</li>
+
+  Your browser should render all your tasks just 
+  like before. To see the editing template, you 
+  will have to change the default isEditing state 
+  from false to true in your code for now;  we
+  will look at making the edit button toggle 
+  this in the next section!
+
+  ------------------------
+
+  Toggling the <Todo /> templates 
+
+At long last, we are ready to make our final 
+core feature interactive. To start with, we want 
+to call setEditing() with a value of true when a 
+user presses the "Edit" button in our viewTemplate, 
+so that we can switch templates.
+
+Update the "Edit" button in the viewTemplate like so:
+
+<button type="button" className="btn" onClick={() => setEditing(true)}>
+  Edit <span clasName="visually-hidden">{props.name}</span>
+</button>
+
+Now we'll add the same onClick handler to the "Cancel"
+button in the editingTemplate, but this time we'll 
+set isEditing to false so that it switches us back 
+to the view template.
+
+Update the "Cancel" button in the editingTemplate like 
+so:
+
+        <button
+          type='button'
+          className="btn todo-cancel"
+          onClick={() => setEditing(false)}
+        >
+          Cancel
+          <span className="visually-hidden">renaming  {props.name} </span>
+        </button>
+
+With this code in place, you should be able to press 
+the "Edit" and "Cancel" buttons in your todo items 
+to toggle between templates.
+
+The next step is to actually make the editing 
+functionality work.
+
+Editing from the UI 
+
+Much of what we're about to do will mirror the work 
+we did in Form.js: as the user types in our new 
+input field, we need to track the text they enter;
+once they submit the form, we need to use a callback 
+prop to update our state with the new name of the 
+task.
+
+We'll start by making a new hook for storing the 
+new name. Still in Todo.js, put the following undeneath 
+the existing hook:
+
+const [newName, setNewName] = useState('');
+
+Next, create a handleChange() function that will set 
+the new name; put this undeneath the hooks but 
+before the templates:
+
+function handleChange(e) {
+  setNewName(e.target.value);
+}
+
+Now we'll update our editingTemplate's <input /> field, 
+setting a value attribute of newName, and binding our 
+handleChange() function to its onChange event.
+Update it as follows:
+
+        <input
+          id={props.id}
+          className="todo-text"
+          type="text" 
+          value={newName}
+          onChange={handleChange}
+          />
+
+Finally, we need to create a function to handle the 
+edit form's onSubmit event; add the following 
+just below the previous function you added:
+
+  function handleSubmit(e) {
+    e.preventDefault();
+    props.editTask(props.id, newName);
+    setNewName("");
+    setEditing(false);
+  }
+
+Remember that our editTask() callback prop needs the 
+ID of the task we're editing as well as its new name.
+
+Bind this function to the form's submit event by adding
+the following onSubmit handler to the editingTemplate's 
+<form>:
+
+<form className="stack-small" onSubmit={handleSubmit}>
+
+You should now be able to edit a task in your browser!
+
+--------------
+
+Back to the filter buttons
+
+Now that our main features are complete, we can think 
+about our filter buttons. Currently, they repeat the 
+"All" label, and they have no functionality! We will 
+be reapplying some skills we used in our <Todo /> 
+component to:
+
+-> Create a hook for storing the active filter.
+-> Render an array of <FilterButton /> elements that 
+allow users to change the active filter between all, 
+completed, and incomplete.
+
+Adding a filter hook
+
+Add a new hook to your App() function that reads and 
+sets a filter. We want the default filter to be All 
+because all of our tasks should be shown initially:
+
+const [filter, setFilter] = useState('All');
+
+Defining our filters
+
+Our goal right now is two-fold:
+
+-> Each filter should have a unique name.
+-> Each filter should have a unique behavior.
+
+A JavaScript object would be a great way to relate 
+names to behaviors: each key is the name of a 
+filter; each property is the behavior associated with 
+that name.
+
+At the top of App.js, beneath our imports but above 
+our App() function, let's add an object called 
+FILTER_MAP:
+
+const FILTER_MAP = {
+  All: () => true,
+  Active: task => !task.completed,
+  Completed: task => task.completed
+};
+
+The values of FILTER_MAP are functions that we 
+will use to filter the tasks data array:
+
+-> The All filter shows all tasks, so we return true for all tasks.
+-> The Active filter shows tasks whose completed prop is false.
+-> The Completed filter shows tasks whose completed prop is true.
+
+Beneath our previous addition, add the following - here 
+we are using the Object.keys() method to collect an array
+of FILTER_NAMES:
+
+const FILTER_NAMES = Object.keys(FILTER_MAP);
+
+Note: We are defining these constants outside our 
+App() function because if they were defined 
+inside it, they would be recalculated every time 
+the <App /> component re-renders, and we don't want 
+that. This information will never change no 
+matter what our application does.
+
+Rendering the filters
+
+Now that we have the FILTER_NAMES array, we can use 
+it to render all three of our filters.
+Inside the App() function we can create a constant 
+called filterList, which we will use to map over 
+our array of names and return a <FilterButton /> 
+component. Remember, we need keys her, too.
+
+Add the following underneath your taskList constant 
+declaration:
+
+  const filterList = FILTER_NAMES.map(name => (
+    <FilterButton key={name} name={name} />
+  ));
+
+Now we'll replace the three repeated <FilterButton />s 
+in App.js with this filterList. Replace the following:
+
+<FilterButton />
+<FilterButton />
+<FilterButton />
+
+With this:
+
+{filterList}
+
+This won't work yet. We've got a bit more work to do 
+first.
+
+------------
+
+Interactive filters 
+
+To make our filter buttons interactive, we should 
+consider what props they need to utilize.
+
+-> We know that the <FilterButton /> should report 
+whether it is currently pressed, and it should be 
+pressed if its name matches the current value of 
+our filter state.
+-> We know that the <FilterButton /> needs a callback 
+to set the active filter. We can make direct use of 
+our setFilter hook.
+
+Update your filterList constant as follows:
+
+  const filterList = FILTER_NAMES.map(name => (
+    <FilterButton
+      key={name}
+      name={name} 
+      isPressed={name === filter}
+      setFilter={setFilter}
+      />
+  ));
+
+  In the same way as we did earlier with our <Todo /> 
+  component, we now have to update FilterButton.js to 
+  utilize the props we have given it. Do each of the 
+  following, and remember to use curly braces to read 
+  these variables!
+
+  -> Replace all with {props.name}
+  -> Set the value of aria-pressed to {props.isPressed}.
+  -> Add an onClick handler that calls props.setFilter() with the filter's name.
+
+  With all of that done, your FilterButton() function 
+  should read like this:
+
+  function FilterButton(props) {
+  return (
+    <button
+      type='button'
+      className='btn toggle-btn'
+      aria-pressed={props.isPressed}
+      onClick={() => props.setFilter(props.name)}
+    >
+      <span className="visually-hidden">Show </span>
+      <span> {props.name} </span>
+      <span className="visually-hidden"> tasks</span>
+    </button>
+  );
+}
+
+Visit your browser again. You should see that the 
+different buttons have been given their respective 
+names. When you press a filter buttonm you should 
+see its text take on a new outline - this tells you 
+it has been selected. And if you look at your 
+DevTool's Page Inspector while clicking the buttons, 
+you'll see the aria-pressed attribute values change 
+accordingly. 
+
+However, our buttons still don't actually filter the 
+todos in the UI! Let's finish this off.
+
+---------
+
+Filtering tasks in the UI
+
+Right now, our taskList constant in App() maps over 
+the tasks state and returns a new <Todo /> component 
+for all of them. This is not what we want! A task 
+should only render if it is included in the results 
+of applying the selected filter. Before we map 
+over the tasks state, we should filter it 
+(with Array.prototype.filter()) to eliminate objects 
+we don't want to render. 
+
+Update your taskList like so:
+
+  const taskList = tasks
+    .filter(FILTER_MAP[filter])
+    .map(task => (
+    <Todo 
+      id={task.id} 
+      name={task.name} 
+      completed={task.completed}
+      key={task.id}  
+      toggleTaskCompleted={toggleTaskCompleted}
+      deleteTask={deleteTask}
+      editTask={editTask}
+    />
+  ));
+
+  In order to decide which callback function to use 
+  in Array.prototype.filter(), we access the value 
+  in FILTER_MAP that corresponds to the key of our 
+  filter state. When filter is All, for example, 
+  FILTER_MAP[filter] will evaluate to () => true.
+
+  Choosing a filter in your browser will now remove 
+  the tasks that do not meet its criteria. The 
+  count in the heading above the list will also 
+  change to reflect the list!
+
+----------------
+
+Summary  
+
+So that's it - our app is now functionally complete. 
+However, now that we've implemented all of our 
+features, we can make a few improvements to ensure 
+that a wider range of users can use our app. Our 
+next article rounds things off for our React 
+tutorials by looking at including focus management 
+in React, which can improve usability and reduce 
+confusion for both keyboard-only and screenreader users.
+
+----------------
+-----------------
+------------------------
+
+ACCESSIBILITY IN REACT
+
+In our final tutorial article, we'll focus on 
+(pun intended) accessibility, including focus 
+management in React, which can improve usability and 
+reduce cofusion for both keyboard-only and 
+screenreader users.
+
+Including keyboard users
+
+At this point, we've accomplished all of the features 
+we set out to implement. A user can add a new task, 
+check and uncheck tasks, delete tasks, or edit task 
+names. And they can filter their task list by all, 
+active, or completed tasks.
+
+Or, at least: they can do all of these things with 
+a mouse. Unfortunately, these features are not very 
+accessible to keyboard-onlu users. Let's explre this now.
+----------
+
+Exploring the keyboard usability problem
+
+Start by clicking on the input at the top of our app, 
+as if you're going to add a new task.
+You'll see a thick, dashed outline around that input. 
+This outline is your visual indicator that the browser 
+is currently focused on this element. Press Tab key, 
+and you will see the outline appear around the "Add"
+button beneath the input. This shows you that the 
+browser's focus has moved. 
+
+Press Tab a few more times, and you will see this 
+dashed focus indicator move between each of the filter 
+buttons. Keep going until the focus indicator is around 
+the first "Edit" button. Press Enter.
+
+The <Todo /> component will switch templates, as we 
+designed, and you'll see a form that lets us edit 
+the name of the task.
+
+But where did our focus indicator go?
+
+When we switch between templates in our <Todo /> 
+component, we completely remove the elements that 
+were there before to replace them with something else. 
+That means the element that we were focused on 
+vanishes, and nothing is in focus at all. This 
+could confuse a wide variety of user - particularly 
+users who rely on the keyboard, or users who use 
+a screen reader.
+
+To improve the experience for keyboard and screen-reader 
+users, we should manage the browser's focus ourselves. 
+
+Focusing between templates 
+
+When a user toggles a <Todo /> template from viewing 
+to editing, we should focus on the <input> used to 
+rename it; when they toggle back from editing to 
+viewing, we should move focus back to the "Edit"
+button.
+
+Targeting our elements
+
+In order to focus on an element in our DOM, we 
+need to tell React which element we want to 
+focus on and how to find it. React's useRef hook 
+creates an object with a single property: current. 
+This property can be a reference to anything we 
+want and look that reference up later. It's particularly 
+useful for  referring to DOM elements. 
+
+Change the import statement at the top of Todo.js so 
+that it icludes useRef:
+
+import React, { useRef, useState } from "react";
+
+Then, create two new constants beneath the hooks 
+in your Todo() function. Each should be a ref - 
+one for the "Edit" button in the view template 
+and one for the edit field in the editing 
+template. 
+
+const editFieldRef = useRef(null);
+const editButtonRef = useRef(null);
+
+These refs have a default value of null because 
+they will not have value until we attach them 
+to their respective elements. To do that, we'll 
+add an attribute of ref to each element, and 
+set their values to the appropriatelu named 
+ref objects.
+
+The textbox <input> in your editing template 
+sholud be updated like this:
+
+        <input
+          id={props.id}
+          className="todo-text"
+          type="text" 
+          value={newName}
+          onChange={handleChange}
+          ref={editFieldRef}
+          />
+
+The "Edit" button in your view template should 
+read like this:
+
+        <button
+          type='button'
+          className="btn"
+          onClick={() => setEditing(true)}
+          ref={editButtonRef}
+        >
+          Edit <span className='visually-hidden'> {props.name} </span>
+        </button>
+
+Focusing on our refs with useEffect
+
+To use our refs for their intended purpose, we 
+need to import another React hook:
+useEffect(). useEffect() is so named because 
+it runs after React renders a given component, 
+and will run any side-effects that we'd like 
+to add to the render process, which we can't 
+run inside the main function body. useEffect() 
+is useful in the current situation because we 
+cannot focus on an element until after the 
+<Todo /> component renders and React knows 
+where our refs are. 
+
+Change the import statement of Todo.js again 
+to add useEffect:
+
+import React, {useEffect, useRef, useState } from 'react';
+
+useEffect() takes a function as an argument; 
+this function is executed after the component 
+renders. Let's see this in action; put the 
+following useEffect() call just above the 
+return statement in the body of Todo(), and 
+pass into it a function that logs words 
+"side effect" to your console:
+
+  useEffect(() => {
+    console.log("side effect");
+  });
+
+  To illustrate the difference between the 
+  main render process and code run inside 
+  useEffect(), add another log - put this 
+  one below the previous addition:
+
+  console.log("main render");
+
+  Now, open the app in your browser. You 
+  should see both messages in your console, with 
+  each one repeating three times. Note how 
+  "main render" logged first, and "side effect" 
+  logged second, even though the "side effect" 
+  log appears first in the code. 
+
+  main render (3)
+  side effect (3)
+
+  That's it for our experimentation for now. Delete 
+  console.log("main render") now, and let's move 
+  on to implementing our focus management. 
+
+  ---
+
+Focusing on our editing field
+
+Now that we know our useEffect() hook works, 
+we can manage focus with it. As a reminder, 
+we want to focus on the editing field when 
+we switch to the editing template. 
+
+Update your existing useEffect() hook so that 
+it reads like this:
+
+  useEffect(() => {
+    if (isEditing) {
+      editFieldRef.current.focus();
+    }
+  }, [isEditing]);
+
+These changes make it so that, if isEditing is
+true, React reads the current value of the 
+editFieldRef and moves browser focus to it .We 
+also pass an array into useEffect() as a 
+second argument. This array is a list of values 
+useEffect() should depend on. With these values 
+included, useEffect() will only run when 
+one of those values changes. We only want to 
+change focus when the value of isEditing changes. 
+
+Try it now, and you'll see that when you click an 
+"Edit" button , focus moves to the corresponding 
+edit <input>!
+
+Moving focus back to the edit button 
+
+At first glance, getting React to move focus 
+back to our "Edit" button when the edit is 
+saved or cancelled appears deceptively easy. 
+Surely we could add a condition to our 
+useEffect to focus on the edit button if 
+isEditing is false? Let's try it now - 
+update your useEffect() call like so:
+
+  useEffect(() => {
+    if (isEditing) {
+      editFieldRef.current.focus();
+    } else {
+      editButtonRef.current.focus();
+    }
+  }, [isEditing]);
+
+  This kind of mostly works. Head back to your 
+  browser and you'll see that your focus moves 
+  between Edit <input> and "Edit" button as you 
+  start and end and edit. However, you may have
+  noticed a new problem - the "Edit" button in the 
+  final <Todo /> component is focussed immediately
+  on page load, before we even interact with 
+  the app!
+
+  Our useEffect() hook is behaving exactly as we 
+  designed it: it runs as soon as the component 
+  renders, sees that isEditing is false, and 
+  focuses the "Edit" button. Because there are
+  three instances of <Todo />, we see focus 
+  on the last "Edit" button. 
+
+  We need to refactor our approach so that 
+  focus changes only when isEditing changes 
+  from one value to another. 
+
+  More robust focus management 
+
+  In order ot meet our refined criteria, we 
+  need to know not just the value of isEditing, 
+  but also when that value has changed. In order 
+  to do that, we need to be able to read the 
+  previous value of the isEditing constant. 
+  Using pseudocode, our logic should be 
+  something like this:
+
+  if (wasNotEditingBefore && isEditingNow) {
+    focusOnEditField()
+  } 
+  if (wasNotEditingBefore && isNotEditingNow) {
+    focusOnEditButton()
+  }
+
+The React team had discussed ways to get a 
+component's previous state, and has provided an 
+example custom hook we can use for the job.
+
+Paste the following code near the top of 
+Todo.js, above your Todo() function. 
+
+function usePrevious(value) {
+  const ref = useRef();
+  useEffect(() => {
+    ref.current = value;
+  });
+  return ref.current;
+}
+
+Now we'll define a wasEditing constant beneath 
+the hooks at the top of Todo(). We want this 
+constant to track the previous value of 
+isEditing, so we call usePrevious with isEditing 
+as an argument:
+
+const wasEditing = usePrevious(isEditing);
+
+With this constant, we can update our useEffect() 
+hook to implement the pseudocode we discussed 
+before - update it as follows:
+
+  useEffect(() => {
+    if (!wasEditing && isEditing) {
+      editFieldRef.current.focus();
+    }
+    if (wasEditing && !isEditing) {
+      editButtonRef.current.focus();
+    }
+  }, [wasEditing, isEditing]);
+
+  Note that the logic of useEffect() now 
+  depends on wasEditing, so we provide it 
+  in the array of dependencies.
+
+  Again try using the "Edit" and "Cancel" buttons 
+  to toggle between the templates of your 
+  <Todo /> component; you'll see the browser 
+  focus indicator move appropriately, without 
+  the problem we discussed at the start of this 
+  section. 
+
+Focusing when the user deletes a task
+There's one last keyboard experience gap: 
+when a user deletes a task from the list, 
+the focus vanishes. We're going to follow 
+a pattern similar to our previous changes: 
+we'll make a new ref, and utilize our 
+usePrevious() hook, so that we can focus on 
+the list heading whenever a user deletes a 
+task. 
+
+Why the list heading?
+
+Sometimes, the place we want to send our focus 
+to is obvious: when we toggled our <Todo /> 
+templates, we had an origin point to "go back" 
+- the "Edit" button. In this case however, 
+since we're completely removing elements from 
+the DOM, we have no place to go back to. The 
+next best thing is an intuitive location somewhere 
+nearby. The list heading is our best choice 
+because it's close to the list item the user 
+will delete, and focusing on it will tell the 
+user how many tasks ara left.
+
+Creating our ref
+
+Import the useRef() and useEffect() hooks 
+into App.js - you'll need them both below:
+
+import React, { useState, useRef, useEffect } from 'react';
+
+Then declare a new ref inside the App() function. 
+Just above the return statement is a good place:
+
+  const listHeadingRef = useRef(null);
+
+Prepare the heading
+
+Heading elements like our <h2> are not usually 
+focusable. This isn't a problem - we can make 
+any element programatically focusable by adding 
+the attribute tabindex="-1" to it. 
+This means only focusable with JavaScript. 
+You can't press Tab to focus on an element with 
+a tabindex of -1 the same way you could do with 
+a <button> or <a> element (this can be done 
+using  tabindex="0", but that's not really 
+appropriate in this case).
+
+Let's add the tabindex attribute - written as tabindex 
+ini JSX - to the heading above our list of tasks, 
+along with our headingRef:
+
+      <h2
+        id="list-heading"
+        tabIndex="-1"
+        ref={listHeadingRef}
+      >{headingText} </h2>
+
+Note: The tabindex attribute is great for accessibility 
+edge-cases, but you should take great care to not 
+overuse it. Only apply a tabindex to an element when 
+you're absolutely sure that making it focusable will 
+benefit your user in some way. In most cases, you 
+should be utilizing elements that can naturally take 
+focus, such as buttons, anchors, and inputs. 
+Irresponsible usage of tabindex could have a 
+profoundly negative impact on keyboard and screen-reader 
+users!
+
+Getting previous state
+
+We want to focus on the element associated with our 
+ref (via the ref atttribute) only when our user 
+deletes a task from their list. That's going to 
+require the usePrevious() hook we already used 
+earlier on. Add it to the top of your App.js file, 
+just below the imports:
+
+function usePrevious(value) {
+  const ref = useRef();
+  useEffect(() => {
+    ref.current = value;
+  });
+  return ref.current;
+}
+
+Now add the following, above the return statement 
+inside the App() function:
+
+const prevTaskLength = usePrevious(tasks.length);
+
+Here we are invoking usePrevious() to track the 
+length of the tasks state, like so:
+
+Note: Since we're now utilizing usePrevious() in 
+two files, a good efficiency refactor would be 
+to move the usePrevious() function into its own 
+file, export it from that file, and import it 
+where you need it. Try doing this as an exercise 
+once you've got to the end. 
+
+Using useEffect() to control our heading focus
+
+Now that we've stored how many tasks we previously 
+had, we can set up a useEffect() hook to run when 
+our number of tasks changes, which will focus the 
+heading if the number of tasks we have now is 
+less than with it previously was - i.e we deleted 
+a task!
+
+Add the following into the body of your App() function, 
+just below your previous additions:
+
+  useEffect(() => {
+    if (tasks.length - prevTaskLength === -1) {
+      listHeadingRef.current.focus();
+    }
+  }, [tasks.length, prevTaskLength]);
+
+  We only try to focus on our list heading if 
+  we have fewer tasks now than we did before. 
+  The dependencies passed into this hook ensure 
+  it will only try to re-run when either of those 
+  values (the number of current tasks, or the 
+  number of previous tasks) changes. 
+
+  Now, when you delete a task in your browser, you will 
+  see our dotted focus ouline appear around the 
+  heading above the list. 
+
+  Finished !
+
+  Yo
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
