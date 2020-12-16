@@ -1,20 +1,20 @@
 {
   "files": {
-    "main.css": "/miguelapb35/mdn-react-todoapp/static/css/main.f247bc25.chunk.css",
-    "main.js": "/miguelapb35/mdn-react-todoapp/static/js/main.b4db69ef.chunk.js",
-    "main.js.map": "/miguelapb35/mdn-react-todoapp/static/js/main.b4db69ef.chunk.js.map",
-    "runtime-main.js": "/miguelapb35/mdn-react-todoapp/static/js/runtime-main.456a79c5.js",
-    "runtime-main.js.map": "/miguelapb35/mdn-react-todoapp/static/js/runtime-main.456a79c5.js.map",
-    "static/js/2.6ba305d9.chunk.js": "/miguelapb35/mdn-react-todoapp/static/js/2.6ba305d9.chunk.js",
-    "static/js/2.6ba305d9.chunk.js.map": "/miguelapb35/mdn-react-todoapp/static/js/2.6ba305d9.chunk.js.map",
-    "static/js/3.58fd74f5.chunk.js": "/miguelapb35/mdn-react-todoapp/static/js/3.58fd74f5.chunk.js",
-    "static/js/3.58fd74f5.chunk.js.map": "/miguelapb35/mdn-react-todoapp/static/js/3.58fd74f5.chunk.js.map",
-    "index.html": "/miguelapb35/mdn-react-todoapp/index.html",
-    "static/css/main.f247bc25.chunk.css.map": "/miguelapb35/mdn-react-todoapp/static/css/main.f247bc25.chunk.css.map",
-    "static/js/2.6ba305d9.chunk.js.LICENSE.txt": "/miguelapb35/mdn-react-todoapp/static/js/2.6ba305d9.chunk.js.LICENSE.txt"
+    "main.css": "/mdn-react-todoapp/static/css/main.f247bc25.chunk.css",
+    "main.js": "/mdn-react-todoapp/static/js/main.b4db69ef.chunk.js",
+    "main.js.map": "/mdn-react-todoapp/static/js/main.b4db69ef.chunk.js.map",
+    "runtime-main.js": "/mdn-react-todoapp/static/js/runtime-main.af148864.js",
+    "runtime-main.js.map": "/mdn-react-todoapp/static/js/runtime-main.af148864.js.map",
+    "static/js/2.6ba305d9.chunk.js": "/mdn-react-todoapp/static/js/2.6ba305d9.chunk.js",
+    "static/js/2.6ba305d9.chunk.js.map": "/mdn-react-todoapp/static/js/2.6ba305d9.chunk.js.map",
+    "static/js/3.58fd74f5.chunk.js": "/mdn-react-todoapp/static/js/3.58fd74f5.chunk.js",
+    "static/js/3.58fd74f5.chunk.js.map": "/mdn-react-todoapp/static/js/3.58fd74f5.chunk.js.map",
+    "index.html": "/mdn-react-todoapp/index.html",
+    "static/css/main.f247bc25.chunk.css.map": "/mdn-react-todoapp/static/css/main.f247bc25.chunk.css.map",
+    "static/js/2.6ba305d9.chunk.js.LICENSE.txt": "/mdn-react-todoapp/static/js/2.6ba305d9.chunk.js.LICENSE.txt"
   },
   "entrypoints": [
-    "static/js/runtime-main.456a79c5.js",
+    "static/js/runtime-main.af148864.js",
     "static/js/2.6ba305d9.chunk.js",
     "static/css/main.f247bc25.chunk.css",
     "static/js/main.b4db69ef.chunk.js"
